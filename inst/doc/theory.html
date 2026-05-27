@@ -1,0 +1,981 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+
+
+<title>Theoretical background of the mhn package</title>
+
+<script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
+// be compatible with the behavior of Pandoc < 2.8).
+document.addEventListener('DOMContentLoaded', function(e) {
+  var hs = document.querySelectorAll("div.section[class*='level'] > :first-child");
+  var i, h, a;
+  for (i = 0; i < hs.length; i++) {
+    h = hs[i];
+    if (!/^h[1-6]$/i.test(h.tagName)) continue;  // it should be a header h1-h6
+    a = h.attributes;
+    while (a.length > 0) h.removeAttribute(a[0].name);
+  }
+});
+</script>
+
+<style type="text/css">
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+span.underline{text-decoration: underline;}
+div.column{display: inline-block; vertical-align: top; width: 50%;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+</style>
+
+
+
+<style type="text/css">
+code {
+white-space: pre;
+}
+.sourceCode {
+overflow: visible;
+}
+</style>
+<style type="text/css" data-origin="pandoc">
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+{ counter-reset: source-line 0; }
+pre.numberSource code > span
+{ position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+{ content: counter(source-line);
+position: relative; left: -1em; text-align: right; vertical-align: baseline;
+border: none; display: inline-block;
+-webkit-touch-callout: none; -webkit-user-select: none;
+-khtml-user-select: none; -moz-user-select: none;
+-ms-user-select: none; user-select: none;
+padding: 0 4px; width: 4em;
+color: #aaaaaa;
+}
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa; padding-left: 4px; }
+div.sourceCode
+{ }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } 
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.at { color: #7d9029; } 
+code span.bn { color: #40a070; } 
+code span.bu { color: #008000; } 
+code span.cf { color: #007020; font-weight: bold; } 
+code span.ch { color: #4070a0; } 
+code span.cn { color: #880000; } 
+code span.co { color: #60a0b0; font-style: italic; } 
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.do { color: #ba2121; font-style: italic; } 
+code span.dt { color: #902000; } 
+code span.dv { color: #40a070; } 
+code span.er { color: #ff0000; font-weight: bold; } 
+code span.ex { } 
+code span.fl { color: #40a070; } 
+code span.fu { color: #06287e; } 
+code span.im { color: #008000; font-weight: bold; } 
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.kw { color: #007020; font-weight: bold; } 
+code span.op { color: #666666; } 
+code span.ot { color: #007020; } 
+code span.pp { color: #bc7a00; } 
+code span.sc { color: #4070a0; } 
+code span.ss { color: #bb6688; } 
+code span.st { color: #4070a0; } 
+code span.va { color: #19177c; } 
+code span.vs { color: #4070a0; } 
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } 
+</style>
+<script>
+// apply pandoc div.sourceCode style to pre.sourceCode instead
+(function() {
+  var sheets = document.styleSheets;
+  for (var i = 0; i < sheets.length; i++) {
+    if (sheets[i].ownerNode.dataset["origin"] !== "pandoc") continue;
+    try { var rules = sheets[i].cssRules; } catch (e) { continue; }
+    var j = 0;
+    while (j < rules.length) {
+      var rule = rules[j];
+      // check if there is a div.sourceCode rule
+      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") {
+        j++;
+        continue;
+      }
+      var style = rule.style.cssText;
+      // check if color or background-color is set
+      if (rule.style.color === '' && rule.style.backgroundColor === '') {
+        j++;
+        continue;
+      }
+      // replace div.sourceCode by a pre.sourceCode rule
+      sheets[i].deleteRule(j);
+      sheets[i].insertRule('pre.sourceCode{' + style + '}', j);
+    }
+  }
+})();
+</script>
+
+
+
+
+<style type="text/css">body {
+background-color: #fff;
+margin: 1em auto;
+max-width: 700px;
+overflow: visible;
+padding-left: 2em;
+padding-right: 2em;
+font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+font-size: 14px;
+line-height: 1.35;
+}
+#TOC {
+clear: both;
+margin: 0 0 10px 10px;
+padding: 4px;
+width: 400px;
+border: 1px solid #CCCCCC;
+border-radius: 5px;
+background-color: #f6f6f6;
+font-size: 13px;
+line-height: 1.3;
+}
+#TOC .toctitle {
+font-weight: bold;
+font-size: 15px;
+margin-left: 5px;
+}
+#TOC ul {
+padding-left: 40px;
+margin-left: -1.5em;
+margin-top: 5px;
+margin-bottom: 5px;
+}
+#TOC ul ul {
+margin-left: -2em;
+}
+#TOC li {
+line-height: 16px;
+}
+table {
+margin: 1em auto;
+border-width: 1px;
+border-color: #DDDDDD;
+border-style: outset;
+border-collapse: collapse;
+}
+table th {
+border-width: 2px;
+padding: 5px;
+border-style: inset;
+}
+table td {
+border-width: 1px;
+border-style: inset;
+line-height: 18px;
+padding: 5px 5px;
+}
+table, table th, table td {
+border-left-style: none;
+border-right-style: none;
+}
+table thead, table tr.even {
+background-color: #f7f7f7;
+}
+p {
+margin: 0.5em 0;
+}
+blockquote {
+background-color: #f6f6f6;
+padding: 0.25em 0.75em;
+}
+hr {
+border-style: solid;
+border: none;
+border-top: 1px solid #777;
+margin: 28px 0;
+}
+dl {
+margin-left: 0;
+}
+dl dd {
+margin-bottom: 13px;
+margin-left: 13px;
+}
+dl dt {
+font-weight: bold;
+}
+ul {
+margin-top: 0;
+}
+ul li {
+list-style: circle outside;
+}
+ul ul {
+margin-bottom: 0;
+}
+pre, code {
+background-color: #f7f7f7;
+border-radius: 3px;
+color: #333;
+white-space: pre-wrap; 
+}
+pre {
+border-radius: 3px;
+margin: 5px 0px 10px 0px;
+padding: 10px;
+}
+pre:not([class]) {
+background-color: #f7f7f7;
+}
+code {
+font-family: Consolas, Monaco, 'Courier New', monospace;
+font-size: 85%;
+}
+p > code, li > code {
+padding: 2px 0px;
+}
+div.figure {
+text-align: center;
+}
+img {
+background-color: #FFFFFF;
+padding: 2px;
+border: 1px solid #DDDDDD;
+border-radius: 3px;
+border: 1px solid #CCCCCC;
+margin: 0 5px;
+}
+h1 {
+margin-top: 0;
+font-size: 35px;
+line-height: 40px;
+}
+h2 {
+border-bottom: 4px solid #f7f7f7;
+padding-top: 10px;
+padding-bottom: 2px;
+font-size: 145%;
+}
+h3 {
+border-bottom: 2px solid #f7f7f7;
+padding-top: 10px;
+font-size: 120%;
+}
+h4 {
+border-bottom: 1px solid #f7f7f7;
+margin-left: 8px;
+font-size: 105%;
+}
+h5, h6 {
+border-bottom: 1px solid #ccc;
+font-size: 105%;
+}
+a {
+color: #0033dd;
+text-decoration: none;
+}
+a:hover {
+color: #6666ff; }
+a:visited {
+color: #800080; }
+a:visited:hover {
+color: #BB00BB; }
+a[href^="http:"] {
+text-decoration: underline; }
+a[href^="https:"] {
+text-decoration: underline; }
+
+code > span.kw { color: #555; font-weight: bold; } 
+code > span.dt { color: #902000; } 
+code > span.dv { color: #40a070; } 
+code > span.bn { color: #d14; } 
+code > span.fl { color: #d14; } 
+code > span.ch { color: #d14; } 
+code > span.st { color: #d14; } 
+code > span.co { color: #888888; font-style: italic; } 
+code > span.ot { color: #007020; } 
+code > span.al { color: #ff0000; font-weight: bold; } 
+code > span.fu { color: #900; font-weight: bold; } 
+code > span.er { color: #a61717; background-color: #e3d2d2; } 
+</style>
+
+
+
+
+</head>
+
+<body>
+
+
+
+
+<h1 class="title toc-ignore">Theoretical background of the mhn
+package</h1>
+
+
+
+<div id="scope" class="section level2" number="1">
+<h2><span class="header-section-number">1</span> Scope</h2>
+<p>This vignette is the theoretical companion to <em>Introduction to the
+mhn Package</em>. The <em>Introduction</em> shows what the four exported
+functions (<code>dmhn</code> / <code>pmhn</code> / <code>qmhn</code> /
+<code>rmhn</code>) and their moment helpers do; this note develops the
+mathematical and algorithmic theory the package implements. We summarise
+the Modified Half-Normal (MHN) family, the Fox–Wright <span class="math inline">\(\Psi\)</span> function that appears in its
+normalising constant, and the two sampling schemes the package draws on
+— Sun, Kong &amp; Pal (2023) and Gao &amp; Wang (2025).</p>
+<p>We deliberately keep the treatment compact. Full proofs and the finer
+numerical considerations live in the original papers (see References).
+Two implementation-relevant points — the typesetting errata in Sun et
+al. (2023) that the package silently corrects, and the benchmark-driven
+rationale for the <code>rmhn(method = &quot;auto&quot;)</code> crossover at 25 —
+are inserted in §4 and §7 where they are most relevant.</p>
+</div>
+<div id="the-mhnalpha-beta-gamma-family" class="section level2" number="2">
+<h2><span class="header-section-number">2</span> The MHN(<span class="math inline">\(\alpha\)</span>, <span class="math inline">\(\beta\)</span>, <span class="math inline">\(\gamma\)</span>) family</h2>
+<p>The MHN distribution has support <span class="math inline">\((0,
+\infty)\)</span> and density</p>
+<p><span class="math display">\[f(x \mid \alpha, \beta, \gamma) =
+  \frac{2 \beta^{\alpha/2} \, x^{\alpha-1} \, \exp(-\beta x^2 + \gamma
+x)}
+       {\Psi[\alpha/2,\, \gamma/\sqrt{\beta}]},
+  \qquad x &gt; 0,\]</span></p>
+<p>with <span class="math inline">\(\alpha &gt; 0\)</span>, <span class="math inline">\(\beta &gt; 0\)</span>, <span class="math inline">\(\gamma \in \mathbb{R}\)</span>. The three
+parameters control three independent factors of the density kernel:</p>
+<table>
+<thead>
+<tr class="header">
+<th>Parameter</th>
+<th>Factor it controls</th>
+<th>Role</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><span class="math inline">\(\alpha\)</span></td>
+<td><span class="math inline">\(x^{\alpha-1}\)</span></td>
+<td>shape</td>
+</tr>
+<tr class="even">
+<td><span class="math inline">\(\beta\)</span></td>
+<td><span class="math inline">\(\exp(-\beta x^2)\)</span></td>
+<td>Gaussian tail</td>
+</tr>
+<tr class="odd">
+<td><span class="math inline">\(\gamma\)</span></td>
+<td><span class="math inline">\(\exp(\gamma x)\)</span></td>
+<td>exponential tilt</td>
+</tr>
+</tbody>
+</table>
+<p>Three familiar distributions sit inside the family as exact special
+cases (Sun et al. 2023, Lemma 6):</p>
+<table>
+<colgroup>
+<col width="21%" />
+<col width="78%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Constraint</th>
+<th>Reduction</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><span class="math inline">\(\gamma = 0\)</span></td>
+<td><span class="math inline">\(X^2 \sim \mathrm{Gamma}(\alpha/2,\,
+\beta)\)</span>, i.e. sqrt-Gamma</td>
+</tr>
+<tr class="even">
+<td><span class="math inline">\(\alpha = 1\)</span></td>
+<td>Truncated normal <span class="math inline">\(\mathrm{TN}(\gamma/(2\beta),\, 1/\sqrt{2\beta},\,
+0,\, \infty)\)</span></td>
+</tr>
+<tr class="odd">
+<td><span class="math inline">\(\alpha = 1,\, \gamma = 0\)</span></td>
+<td>Half-normal <span class="math inline">\(\lvert Z \rvert\)</span>
+with <span class="math inline">\(Z \sim N(0,\, 1/(2\beta))\)</span></td>
+</tr>
+</tbody>
+</table>
+<p>There is also a degenerate <em>boundary</em> limit, not listed in the
+table: as <span class="math inline">\(\beta \to 0^+\)</span> with <span class="math inline">\(\gamma &lt; 0\)</span>, the MHN density converges
+to <span class="math inline">\(\mathrm{Gamma}(\alpha,\,
+-\gamma)\)</span>. The package does not handle this limit specially
+because <span class="math inline">\(\beta &gt; 0\)</span> is required by
+the MHN parameter space; for a Gamma draw with <span class="math inline">\(\beta = 0\)</span>, use <code>stats::rgamma</code>
+directly.</p>
+<p>For each of the three <em>finite</em> special cases in the table
+above — <span class="math inline">\(\gamma = 0\)</span>, <span class="math inline">\(\alpha = 1\)</span>, and both together — the
+package detects the constraint within
+<code>sqrt(.Machine$double.eps)</code> tolerance and dispatches to the
+corresponding closed-form primitive in <code>stats</code>, so all four
+exported functions (<code>dmhn</code> / <code>pmhn</code> /
+<code>qmhn</code> / <code>rmhn</code>) are exact in those three regimes,
+bypassing the general series-and-rejection machinery.</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a>x  <span class="ot">&lt;-</span> <span class="fu">seq</span>(<span class="fl">0.001</span>, <span class="dv">4</span>, <span class="at">length.out =</span> <span class="dv">400</span>)</span>
+<span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a><span class="fu">plot</span>(x, <span class="fu">dmhn</span>(x, <span class="at">alpha =</span> <span class="dv">2</span>,   <span class="at">beta =</span> <span class="dv">1</span>, <span class="at">gamma =</span> <span class="dv">1</span>), <span class="at">type =</span> <span class="st">&quot;l&quot;</span>, <span class="at">lwd =</span> <span class="dv">2</span>,</span>
+<span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a>     <span class="at">ylim =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="fl">1.4</span>), <span class="at">ylab =</span> <span class="st">&quot;f(x)&quot;</span>,</span>
+<span id="cb1-4"><a href="#cb1-4" tabindex="-1"></a>     <span class="at">main =</span> <span class="st">&quot;MHN density at beta = 1, gamma = 1&quot;</span>)</span>
+<span id="cb1-5"><a href="#cb1-5" tabindex="-1"></a><span class="fu">lines</span>(x, <span class="fu">dmhn</span>(x, <span class="at">alpha =</span> <span class="dv">5</span>,   <span class="at">beta =</span> <span class="dv">1</span>, <span class="at">gamma =</span> <span class="dv">1</span>), <span class="at">lwd =</span> <span class="dv">2</span>, <span class="at">col =</span> <span class="st">&quot;steelblue&quot;</span>)</span>
+<span id="cb1-6"><a href="#cb1-6" tabindex="-1"></a><span class="fu">lines</span>(x, <span class="fu">dmhn</span>(x, <span class="at">alpha =</span> <span class="dv">1</span>,   <span class="at">beta =</span> <span class="dv">1</span>, <span class="at">gamma =</span> <span class="dv">1</span>), <span class="at">lwd =</span> <span class="dv">2</span>, <span class="at">col =</span> <span class="st">&quot;tomato&quot;</span>)</span>
+<span id="cb1-7"><a href="#cb1-7" tabindex="-1"></a><span class="fu">lines</span>(x, <span class="fu">dmhn</span>(x, <span class="at">alpha =</span> <span class="fl">0.5</span>, <span class="at">beta =</span> <span class="dv">1</span>, <span class="at">gamma =</span> <span class="dv">1</span>), <span class="at">lwd =</span> <span class="dv">2</span>, <span class="at">col =</span> <span class="st">&quot;darkorange&quot;</span>)</span>
+<span id="cb1-8"><a href="#cb1-8" tabindex="-1"></a><span class="fu">legend</span>(<span class="st">&quot;topright&quot;</span>, <span class="at">bty =</span> <span class="st">&quot;n&quot;</span>, <span class="at">lwd =</span> <span class="dv">2</span>,</span>
+<span id="cb1-9"><a href="#cb1-9" tabindex="-1"></a>       <span class="at">col =</span> <span class="fu">c</span>(<span class="st">&quot;darkorange&quot;</span>, <span class="st">&quot;tomato&quot;</span>, <span class="st">&quot;black&quot;</span>, <span class="st">&quot;steelblue&quot;</span>),</span>
+<span id="cb1-10"><a href="#cb1-10" tabindex="-1"></a>       <span class="at">legend =</span> <span class="fu">c</span>(<span class="st">&quot;alpha = 0.5  (no interior mode)&quot;</span>,</span>
+<span id="cb1-11"><a href="#cb1-11" tabindex="-1"></a>                  <span class="st">&quot;alpha = 1    (truncated normal)&quot;</span>,</span>
+<span id="cb1-12"><a href="#cb1-12" tabindex="-1"></a>                  <span class="st">&quot;alpha = 2    (log-concave)&quot;</span>,</span>
+<span id="cb1-13"><a href="#cb1-13" tabindex="-1"></a>                  <span class="st">&quot;alpha = 5    (log-concave, shifted right)&quot;</span>))</span></code></pre></div>
+<div class="float">
+<img role="img" aria-label="MHN density as alpha crosses the log-concavity threshold; beta = 1, gamma = 1 fixed." src="data:image/png;base64,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" alt="MHN density as alpha crosses the log-concavity threshold; beta = 1, gamma = 1 fixed." />
+<div class="figcaption">MHN density as alpha crosses the log-concavity
+threshold; beta = 1, gamma = 1 fixed.</div>
+</div>
+<p>The figure illustrates the qualitative claims developed in the next
+section. The density is log-concave whenever <span class="math inline">\(\alpha \geq 1\)</span> (Sun et al. 2023, Lemma
+3a). For <span class="math inline">\(\alpha &gt; 1\)</span> it has a
+finite interior mode in closed form (Sun et al. 2023, Lemma 3b); the
+borderline case <span class="math inline">\(\alpha = 1\)</span> reduces
+to the truncated normal, whose mode is <span class="math inline">\(\max(0,\, \gamma/(2\beta))\)</span> — interior
+when <span class="math inline">\(\gamma &gt; 0\)</span>, on the boundary
+<span class="math inline">\(x = 0\)</span> otherwise. For <span class="math inline">\(\alpha &lt; 1\)</span> the density is typically
+monotone decreasing with a boundary singularity at <span class="math inline">\(x \to 0^+\)</span>. The one exception is <span class="math inline">\(\gamma &gt; 0\)</span> together with <span class="math inline">\(\alpha \geq 1 - \gamma^2/(8\beta)\)</span>, where
+the density is not unimodal: it diverges at <span class="math inline">\(x \to 0^+\)</span>, dips to a local minimum, rises
+to a single interior local maximum, and then decays (Sun et al. 2023,
+Lemma 3c). At <span class="math inline">\((\beta, \gamma) = (1,
+1)\)</span> this threshold is <span class="math inline">\(1 - 1/8 =
+0.875\)</span>, so the orange (<span class="math inline">\(\alpha =
+0.5\)</span>) curve in the figure sits in the strict monotone-decreasing
+regime, with no interior local maximum.</p>
+</div>
+<div id="shape-and-moments" class="section level2" number="3">
+<h2><span class="header-section-number">3</span> Shape and moments</h2>
+<p>Three facts from Sun et al. (2023) drive everything the package does
+with shape, moments, and the mode.</p>
+<p><strong>Log-concavity is a function of <span class="math inline">\(\alpha\)</span> alone</strong> (Sun et al. 2023,
+Lemma 3a). For <span class="math inline">\(\alpha \geq 1\)</span> the
+density is log-concave irrespective of <span class="math inline">\(\beta\)</span> and <span class="math inline">\(\gamma\)</span>; for <span class="math inline">\(\alpha &lt; 1\)</span> it is not. This single
+threshold is what splits the Gao &amp; Wang (2025) RTDR sampler into its
+log-axis and original-axis branches in §6 below.</p>
+<p><strong>The mode has a closed form for <span class="math inline">\(\alpha &gt; 1\)</span></strong> (Sun et al. 2023,
+Lemma 3b):</p>
+<p><span class="math display">\[X_{\mathrm{mode}}
+= \frac{\gamma + \sqrt{\gamma^2 + 8\beta(\alpha -
+1)}}{4\beta}.\]</span></p>
+<p>For <span class="math inline">\(\alpha = 1\)</span> the mode is <span class="math inline">\(\max(0,\, \gamma/(2\beta))\)</span> (the
+truncated-normal mode, Sun et al. 2023, Lemma 6b). For <span class="math inline">\(\alpha &lt; 1\)</span> the density is either
+monotone decreasing or develops a non-trivial local maximum and local
+minimum, depending on the sign of <span class="math inline">\(1 -
+\gamma^2/(8\beta) - \alpha\)</span> (Sun et al. 2023, Lemma 3c–d). The
+helper <code>mhn_mode()</code> implements this case split and returns
+<code>NA</code> when no interior mode exists.</p>
+<p><strong>Moments satisfy a two-term recurrence</strong> (Sun et
+al. 2023, Lemma 2b):</p>
+<p><span class="math display">\[E(X^{k+2})
+= \frac{\alpha + k}{2 \beta}\, E(X^{k})
++ \frac{\gamma}{2 \beta}\, E(X^{k+1}).\]</span></p>
+<p>Together with the closed-form ratio for <span class="math inline">\(E(X)\)</span> in terms of <span class="math inline">\(\Psi\)</span> (Sun et al. 2023, Lemma 2a), this
+gives every higher moment. The helpers <code>mhn_mean()</code>,
+<code>mhn_var()</code>, <code>mhn_skewness()</code> and
+<code>mhn_kurtosis()</code> apply the recurrence in C++ via Rcpp; the
+<em>Introduction</em> vignette shows them in action. A useful sanity
+bound (Sun et al. 2023, Lemma 4c) is <span class="math inline">\(\mathrm{Var}(X) \leq 1/(2\beta)\)</span> for every
+<span class="math inline">\(\alpha \geq 1\)</span>, <span class="math inline">\(\gamma \in \mathbb{R}\)</span>.</p>
+</div>
+<div id="the-foxwright-psi-normalising-constant" class="section level2" number="4">
+<h2><span class="header-section-number">4</span> The Fox–Wright <span class="math inline">\(\Psi\)</span> normalising constant</h2>
+<p>The normalising constant in the MHN density is</p>
+<p><span class="math display">\[\Psi\!\left[\frac{\alpha}{2},\, z\right]
+\;=\; \sum_{n=0}^{\infty}
+        \frac{\Gamma\!\big(\tfrac{\alpha + n}{2}\big)}{n!} \, z^{n},
+\qquad z = \frac{\gamma}{\sqrt{\beta}}.\]</span></p>
+<p>This series is absolutely convergent for every <span class="math inline">\(\alpha &gt; 0\)</span> and every <span class="math inline">\(z \in \mathbb{R}\)</span>, and is strictly
+positive. It depends on <span class="math inline">\((\alpha, \beta,
+\gamma)\)</span> only through the two-dimensional combination <span class="math inline">\((\alpha, z)\)</span>.</p>
+<p>A useful organisational point: <strong><span class="math inline">\(\Psi\)</span> matters only for some of the
+package’s exported functions</strong>.</p>
+<table>
+<colgroup>
+<col width="64%" />
+<col width="28%" />
+<col width="7%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Function group</th>
+<th align="center">Needs <span class="math inline">\(\Psi\)</span>?</th>
+<th>Why</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>dmhn</code>, <code>pmhn</code>, <code>qmhn</code></td>
+<td align="center">yes</td>
+<td><span class="math inline">\(\Psi\)</span> sits in the density’s
+denominator and in the CDF series.</td>
+</tr>
+<tr class="even">
+<td><code>mhn_mean</code>, <code>mhn_var</code>,
+<code>mhn_skewness</code>, <code>mhn_kurtosis</code></td>
+<td align="center">yes</td>
+<td>Moments are ratios <span class="math inline">\(\Psi[(\alpha+k)/2,\,
+z] / \Psi[\alpha/2,\, z]\)</span>.</td>
+</tr>
+<tr class="odd">
+<td><code>rmhn</code> (Sun or RTDR path)</td>
+<td align="center">no</td>
+<td><span class="math inline">\(\Psi\)</span> enters both proposal scale
+and target as a common factor that cancels.</td>
+</tr>
+</tbody>
+</table>
+<p>The practical consequence is that any numerical issues in evaluating
+<span class="math inline">\(\Psi\)</span> — accumulated rounding in
+<code>lgamma</code>, or truncation error in the series — can only affect
+<code>d/p/q</code> and the moment helpers; they cannot leak into the
+sampler.</p>
+<p>For evaluation, the package follows the case split of Sun et al.
+(2023, Lemma 9–11):</p>
+<ul>
+<li><span class="math inline">\(\gamma = 0\)</span> gives <span class="math inline">\(\Psi[\alpha/2, 0] =
+\Gamma(\alpha/2)\)</span>.</li>
+<li><span class="math inline">\(\alpha = 1\)</span>, and the <span class="math inline">\(\alpha = 2,\, \gamma \geq 0\)</span> corner, both
+reduce to closed forms involving <span class="math inline">\(\Phi\)</span> (Sun et al. 2023, Lemma 9c).</li>
+<li><span class="math inline">\(\gamma &gt; 0\)</span> uses the
+alternating-free series of Sun et al. (2023, Lemma 10) with a
+pre-computed truncation point. All terms are positive, so there is no
+catastrophic cancellation.</li>
+<li><span class="math inline">\(\gamma &lt; 0\)</span> switches to the
+integral representation (Sun et al. 2023, Lemma 11) and uses Boost’s
+<code>gauss_kronrod</code> (for <span class="math inline">\(\alpha \geq
+1\)</span>) or <code>tanh_sinh</code> (for <span class="math inline">\(\alpha &lt; 1\)</span>, where the boundary
+singularity <span class="math inline">\(u^{\alpha-1}\)</span> needs the
+double-exponential rule).</li>
+</ul>
+<div id="errata-in-sun-et-al.-2023" class="section level3" number="4.1">
+<h3><span class="header-section-number">4.1</span> Errata in Sun et
+al. (2023)</h3>
+<p>The published paper has two typesetting errors that touch the
+implementation. Each is corrected in the supplementary derivation, and
+the package follows the corrected form.</p>
+<ul>
+<li><p><strong>Mixture weights</strong> <span class="math inline">\(p_{i}\)</span> <strong>in Lemma 7.</strong> The
+main-text statement of Lemma 7 gives the weights for the <span class="math inline">\(\sqrt{\mathrm{Gamma}}\)</span> mixture
+representation as <span class="math inline">\(p_{i} =
+\tfrac{1}{2\beta^{\alpha/2}} \cdot
+\tfrac{\Gamma((\alpha + 1 + i)/2)\, (\gamma/\sqrt{\beta})^{i}}
+      {i!\, \Psi[\alpha/2,\, \gamma/\sqrt{\beta}]}\)</span>. These do
+not sum to one, contradicting the definition of <span class="math inline">\(\Psi\)</span> and the Poisson–Gamma hierarchical
+representation in Sun et al. (2023, Lemma 5a). The correct form,
+reproduced in the supplementary proof of Lemma 7 (Supplementary §2.13),
+is <span class="math display">\[p_{i} \;=\;
+\frac{\Gamma((\alpha + i)/2)\, (\gamma/\sqrt{\beta})^{i}}
+      {i!\, \Psi[\alpha/2,\, \gamma/\sqrt{\beta}]}\]</span> i.e. drop
+the leading <span class="math inline">\(1/(2\beta^{\alpha/2})\)</span>
+and use <span class="math inline">\(\alpha + i\)</span> in the <span class="math inline">\(\Gamma\)</span> argument instead of <span class="math inline">\(\alpha + 1 + i\)</span>. This affects Algorithm 2
+only, which the package does not implement; the correction is recorded
+here for completeness.</p></li>
+<li><p><strong>Series truncation discriminants</strong> <span class="math inline">\(C_{1}\)</span>, <span class="math inline">\(C_{2}\)</span> <strong>in Lemma 10.</strong> The
+truncation point of the <span class="math inline">\(\Psi\)</span> series
+is the smallest <span class="math inline">\(k\)</span> for which <span class="math inline">\(A(k+1)/A(k) \leq q\)</span> (with an analogous
+bound for <span class="math inline">\(B\)</span>). Reducing this to a
+quadratic in <span class="math inline">\(k\)</span> gives a discriminant
+whose last term is <span class="math inline">\(\alpha x^{2}\)</span>
+(and <span class="math inline">\((\alpha+1) x^{2}\)</span> for <span class="math inline">\(C_{2}\)</span>). The main-text statement of Lemma
+10 prints these as <span class="math inline">\(\alpha x\)</span> and
+<span class="math inline">\((\alpha+1) x\)</span> — a single missing
+power of <span class="math inline">\(x\)</span>. The supplementary
+derivation (Supplementary §2.2.1, §2.2.2) carries <span class="math inline">\(z^{2}\)</span> throughout, in agreement with the
+rederivation. The corrected <span class="math inline">\(x^{2}\)</span>
+form is what the package uses in <a href="https://github.com/t-momozaki/mhn/blob/main/src/mhn_psi_series.cpp">src/mhn_psi_series.cpp</a>
+(marked with an <code>// ERRATA</code> comment); evaluating <span class="math inline">\(\Psi\)</span> at the published <span class="math inline">\(x\)</span> form would give a too-small truncation
+point and silently lose precision.</p></li>
+</ul>
+</div>
+</div>
+<div id="sampling-sun-et-al.-2023" class="section level2" number="5">
+<h2><span class="header-section-number">5</span> Sampling: Sun et
+al. (2023)</h2>
+<p>Sun et al. (2023) propose three Accept–Reject schemes, indexed by the
+sign of <span class="math inline">\(\gamma\)</span> and a coarse split
+on <span class="math inline">\(\alpha\)</span>. Two of them — Algorithm
+1 and Algorithm 3 — are implemented in the package and reachable via
+<code>rmhn(method = &quot;sun&quot;)</code>. Algorithm 2 is not, and this section
+explains the reason.</p>
+<div id="algorithm-1-gamma-0-alpha-geq-1" class="section level3" number="5.1">
+<h3><span class="header-section-number">5.1</span> Algorithm 1 — <span class="math inline">\(\gamma &gt; 0\)</span>, <span class="math inline">\(\alpha \geq 1\)</span></h3>
+<p>For each parameter triple, Algorithm 1 constructs
+<strong>two</strong> proposal distributions — a Normal with mean <span class="math inline">\(\mu_{\mathrm{opt}}\)</span> and variance <span class="math inline">\(1/(2\beta)\)</span>, and a <span class="math inline">\(\sqrt{\mathrm{Gamma}(\alpha/2,\,
+\delta_{\mathrm{opt}})}\)</span> — each with a multiplicative envelope
+constant <span class="math inline">\(K_{1}\)</span> and <span class="math inline">\(K_{2}\)</span>. Setup chooses whichever envelope
+is tighter (<span class="math inline">\(K_{1} \leq K_{2}\)</span> or the
+reverse). The two optima <span class="math inline">\(\mu_{\mathrm{opt}}\)</span> and <span class="math inline">\(\delta_{\mathrm{opt}}\)</span> have closed forms
+(Sun et al. 2023, Theorem 1b), so setup is cheap. The acceptance
+probability is bounded below by 0.8 for <span class="math inline">\(\alpha \geq 4\)</span> (Sun et al. 2023, Theorem
+2e). For <span class="math inline">\(1 \leq \alpha &lt; 4\)</span> no
+uniform lower bound is proved, but the original Figure 2 shows
+empirically high acceptance throughout that range.</p>
+</div>
+<div id="algorithm-3-gamma-leq-0" class="section level3" number="5.2">
+<h3><span class="header-section-number">5.2</span> Algorithm 3 — <span class="math inline">\(\gamma \leq 0\)</span></h3>
+<p>When the tilt is non-positive, Theorem 3 of Sun et al. (2023)
+supplies a proposal kernel based on an AM–GM-type inequality. With a
+tuning point <span class="math inline">\(m &gt; 0\)</span> and the
+exponent <span class="math inline">\(r = (\beta m + |\gamma|)/(2\beta m
++ |\gamma|)\)</span>, the candidate is</p>
+<p><span class="math display">\[T \sim \mathrm{Gamma}\!\big(\alpha \cdot
+r,\, m(\beta m + |\gamma|)\big),
+\qquad X = m \cdot T^{r}.\]</span></p>
+<p>The construction works for every <span class="math inline">\(\alpha
+&gt; 0\)</span>; the uniform acceptance bound <span class="math inline">\(\geq 1/\sqrt{2} \approx 0.707\)</span> (Sun et
+al. 2023, Theorem 4c) is proved only for <span class="math inline">\(\alpha &gt; 1\)</span>, but the procedure also
+samples correctly when <span class="math inline">\(\alpha \leq
+1\)</span>. The matching point is initialised from a closed-form
+heuristic of Sun et al. (2023, §4.2): <span class="math inline">\(m_{\mathrm{init}} = \alpha^{2}/(1 +
+\alpha)\)</span> for <span class="math inline">\(\alpha \leq
+1.1\)</span> and a more elaborate expression based on the mode and the
+rightmost inflection point for <span class="math inline">\(\alpha &gt;
+1.1\)</span>. The package then applies a single Newton-Raphson
+refinement step in both regimes, producing <span class="math inline">\(m_{\mathrm{recommend}}\)</span>, whose acceptance
+probability is within <span class="math inline">\(0.2\%\)</span> of the
+optimum across the parameter range tabulated in Sun et al. (2023, Table
+1).</p>
+</div>
+<div id="why-algorithm-2-is-not-implemented" class="section level3" number="5.3">
+<h3><span class="header-section-number">5.3</span> Why Algorithm 2 is
+not implemented</h3>
+<p>Algorithm 2 targets <span class="math inline">\(\gamma &gt;
+0\)</span> with <span class="math inline">\(\alpha &lt; 1\)</span> via
+the mixture representation</p>
+<p><span class="math display">\[f_{\mathrm{MHN}}(x \mid \alpha, \beta,
+\gamma)
+\;=\; \sum_{i=0}^{\infty} p_{i}\, f_{i}(x \mid \alpha, \beta),
+\qquad
+f_{i} \;\sim\; \sqrt{\mathrm{Gamma}\!\big((\alpha + i)/2,\,
+\beta\big)}.\]</span></p>
+<p>The mixture-component sampler needs a truncation point <span class="math inline">\(M^{\dagger}\)</span> chosen so that the tail mass
+beyond <span class="math inline">\(M^{\dagger}\)</span> is below a
+target tolerance (Sun et al. 2023, Lemma 8). For large <span class="math inline">\(\gamma^{2}/\beta\)</span> this truncation grows
+like <span class="math inline">\(\gamma^{2}/(\varepsilon^{2}
+\beta)\)</span>, and the whole scheme degrades catastrophically — Gao
+&amp; Wang (2025, Table 1) report a slowdown of up to <span class="math inline">\(\sim 3 \times 10^{4}\times\)</span> against RTDR
+in the most extreme case <span class="math inline">\((\alpha, \gamma) =
+(0.01, 10000)\)</span>. The package therefore declines to implement
+Algorithm 2 and routes <span class="math inline">\((\alpha &lt; 1,
+\gamma &gt; 0)\)</span> to RTDR, where the acceptance bound <span class="math inline">\(\geq 1/e\)</span> (next section) holds
+uniformly.</p>
+</div>
+</div>
+<div id="sampling-gao-wang-2025-rtdr" class="section level2" number="6">
+<h2><span class="header-section-number">6</span> Sampling: Gao &amp;
+Wang (2025) RTDR</h2>
+<p>Gao &amp; Wang (2025) introduce a <em>Relaxed</em> Transformed
+Density Rejection (RTDR) sampler that comes with a uniform lower bound
+on the acceptance probability across the <em>entire</em> parameter
+space. Three ideas drive the construction.</p>
+<div id="t_c-concavity" class="section level3" number="6.1">
+<h3><span class="header-section-number">6.1</span> <span class="math inline">\(T_{c}\)</span>-concavity</h3>
+<p>Standard TDR builds piecewise-linear envelopes on top of a
+log-transformed density. RTDR generalises to the <span class="math inline">\(T_{c}\)</span> family</p>
+<p><span class="math display">\[T_{c}[x] = \mathrm{sign}(c) \cdot x^{c}
+\quad (c &gt; -1,\, c \neq 0),
+\qquad T_{0}[x] = \log x.\]</span></p>
+<p>A density <span class="math inline">\(f\)</span> is <em><span class="math inline">\(T_{c}\)</span>-concave</em> if <span class="math inline">\(T_{c}[f]\)</span> is concave. Logarithmic
+concavity (the usual TDR setting) is the <span class="math inline">\(c =
+0\)</span> special case. The package’s RTDR implementation uses <span class="math inline">\(c = -1/2\)</span> on the log-axis density for the
+<span class="math inline">\(\alpha &lt; 1\)</span> branches because
+<span class="math inline">\(T_{-1/2}[x] = -x^{-1/2}\)</span>
+accommodates the slower decay of <span class="math inline">\(g(y)\)</span> when the original <span class="math inline">\(f\)</span> has a boundary singularity at <span class="math inline">\(x = 0\)</span>.</p>
+</div>
+<div id="working-on-the-log-axis-when-alpha-1" class="section level3" number="6.2">
+<h3><span class="header-section-number">6.2</span> Working on the log
+axis when <span class="math inline">\(\alpha &lt; 1\)</span></h3>
+<p>When <span class="math inline">\(\alpha &lt; 1\)</span> the density
+<span class="math inline">\(f(x \mid \alpha, \gamma)\)</span> on <span class="math inline">\((0, \infty)\)</span> blows up at the left endpoint
+and is not amenable to direct envelope construction. The change of
+variable <span class="math inline">\(y = \log x\)</span> yields</p>
+<p><span class="math display">\[g(y \mid \alpha, \gamma)
+\;=\; \exp\!\big( \alpha y - e^{2y} + \gamma e^{y} \big),
+\qquad y \in \mathbb{R},\]</span></p>
+<p>which is bounded and unimodal (Gao &amp; Wang 2025, Lemma 3.3). RTDR
+operates on <span class="math inline">\(g\)</span> for <span class="math inline">\(\alpha &lt; 1\)</span> and on <span class="math inline">\(f\)</span> directly for <span class="math inline">\(\alpha \geq 1\)</span>.</p>
+</div>
+<div id="the-four-regions" class="section level3" number="6.3">
+<h3><span class="header-section-number">6.3</span> The four regions</h3>
+<p>After scale normalisation <span class="math inline">\(\sqrt{\beta} X
+\to X\)</span> (so we may assume <span class="math inline">\(\beta =
+1\)</span>), the RTDR envelope construction splits into four regions
+based on <span class="math inline">\((\alpha, \gamma)\)</span>. The
+<span class="math inline">\(\gamma\)</span> in the table below is the
+normalised tilt <span class="math inline">\(\gamma_{\mathrm{norm}} =
+\gamma/\sqrt{\beta}\)</span>; for a general <span class="math inline">\(\beta\)</span> the package’s
+<code>rmhn(method = &quot;rtdr&quot;)</code> rescales internally and compares
+<span class="math inline">\(\gamma_{\mathrm{norm}}\)</span> against the
+boundary <span class="math inline">\(2(1 - \sqrt{1 -
+2\alpha})\)</span>.</p>
+<table>
+<colgroup>
+<col width="6%" />
+<col width="13%" />
+<col width="17%" />
+<col width="23%" />
+<col width="40%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="center">Region</th>
+<th><span class="math inline">\(\alpha\)</span></th>
+<th><span class="math inline">\(\gamma\)</span></th>
+<th>Envelope target</th>
+<th>Reference</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="center">(a)</td>
+<td><span class="math inline">\(\geq 1\)</span></td>
+<td>any</td>
+<td><span class="math inline">\(f\)</span> log-concave</td>
+<td>Gao &amp; Wang (2025, Theorem 3.1)</td>
+</tr>
+<tr class="even">
+<td align="center">(b)</td>
+<td><span class="math inline">\([1/2,\, 1)\)</span></td>
+<td>any</td>
+<td><span class="math inline">\(g\)</span> <span class="math inline">\(T_{-1/2}\)</span>-concave</td>
+<td>Gao &amp; Wang (2025, Corollary 3.1; Theorem 3.2)</td>
+</tr>
+<tr class="odd">
+<td align="center">(c)</td>
+<td><span class="math inline">\((0,\, 1/2)\)</span></td>
+<td><span class="math inline">\(\leq 2(1 - \sqrt{1 -
+2\alpha})\)</span></td>
+<td><span class="math inline">\(g\)</span> <span class="math inline">\(T_{-1/2}\)</span>-concave</td>
+<td>Gao &amp; Wang (2025, Lemma 3.5; Theorem 3.2)</td>
+</tr>
+<tr class="even">
+<td align="center">(d)</td>
+<td><span class="math inline">\((0,\, 1/2)\)</span></td>
+<td><span class="math inline">\(&gt; 2(1 - \sqrt{1 -
+2\alpha})\)</span></td>
+<td><span class="math inline">\(g\)</span> with inflection at <span class="math inline">\(y^{*} = \log(\gamma/4)\)</span></td>
+<td>Gao &amp; Wang (2025, Theorem 4.4)</td>
+</tr>
+</tbody>
+</table>
+<p>Region (a) is the easiest: <span class="math inline">\(f\)</span> is
+log-concave, two tangent lines and a constant segment suffice. Regions
+(b) and (c) reuse the same <span class="math inline">\(T_{-1/2}\)</span>
+envelope on <span class="math inline">\(g\)</span>, with only the
+validity argument differing. Region (d) is the hardest — <span class="math inline">\(g\)</span> has an inflection point and the
+envelope needs <span class="math inline">\(K\)</span> secant segments on
+the log-convex side, with <span class="math inline">\(K\)</span> growing
+logarithmically in <span class="math inline">\(\gamma\)</span>.</p>
+</div>
+<div id="why-relaxed" class="section level3" number="6.4">
+<h3><span class="header-section-number">6.4</span> Why “relaxed”</h3>
+<p>The classical TDR construction asks for <em>optimal</em> tangent
+contact points, which generally have no closed form and must be found by
+Newton iteration. Gao &amp; Wang (2025, Theorem 2.1) show that the
+acceptance bound <span class="math inline">\(\leq e \approx
+2.719\)</span> (equivalently, acceptance probability <span class="math inline">\(\geq 1/e \approx 0.368\)</span>) holds as long as
+the contact points lie <em>anywhere</em> inside a fixed interval —
+namely</p>
+<p><span class="math display">\[\log\!\frac{f(m)}{f(t)} \in
+\begin{cases}
+   [0.46,\, 2.49] &amp; f \text{ log-concave (region (a))}, \\
+   [0.93,\, 1.99] &amp; g \text{ $T_{-1/2}$-concave (regions (b), (c))}.
+\end{cases}\]</span></p>
+<p>Setup is therefore a handful of cheap iterations that terminate as
+soon as the bracket is hit, with no need for a precise Newton solution.
+This is the main practical edge of RTDR over Algorithms 1 / 3 of Sun et
+al. (2023) in Gibbs-style workloads where <span class="math inline">\((\alpha, \beta, \gamma)\)</span> changes every
+iteration: the setup cost is amortised over a single draw instead of
+many, and a cheap setup wins.</p>
+<p>Composing the bounds in Gao &amp; Wang (2025, Theorems 3.1, 3.2, 4.4)
+yields the headline guarantee of RTDR: for <strong>every</strong> <span class="math inline">\((\alpha, \beta, \gamma)\)</span> with <span class="math inline">\(\alpha &gt; 0\)</span>, <span class="math inline">\(\beta &gt; 0\)</span>, <span class="math inline">\(\gamma \in \mathbb{R}\)</span>, the acceptance
+probability is at least <span class="math inline">\(1/e \approx
+0.368\)</span>. The three algorithms of Sun et al. (2023) only have
+parameter-dependent guarantees (and only on parts of the parameter space
+— see §5).</p>
+<p>A quick sanity check that the RTDR sampler converges to the right
+distribution in all four regions — empirical means from RTDR vs
+theoretical means across regions (a), (b), (c), (d), each based on 5000
+draws:</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a>cases <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a>  <span class="at">region =</span> <span class="fu">c</span>(<span class="st">&quot;(a)&quot;</span>, <span class="st">&quot;(b)&quot;</span>, <span class="st">&quot;(c)&quot;</span>, <span class="st">&quot;(d)&quot;</span>),</span>
+<span id="cb2-3"><a href="#cb2-3" tabindex="-1"></a>  <span class="at">alpha  =</span> <span class="fu">c</span>(<span class="fl">2.0</span>,    <span class="fl">0.7</span>,    <span class="fl">0.3</span>,    <span class="fl">0.3</span>),</span>
+<span id="cb2-4"><a href="#cb2-4" tabindex="-1"></a>  <span class="at">gamma  =</span> <span class="fu">c</span>(<span class="fl">0.5</span>,    <span class="fl">1.0</span>,    <span class="fl">0.5</span>,    <span class="fl">5.0</span>)</span>
+<span id="cb2-5"><a href="#cb2-5" tabindex="-1"></a>)</span>
+<span id="cb2-6"><a href="#cb2-6" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">42</span>)</span>
+<span id="cb2-7"><a href="#cb2-7" tabindex="-1"></a>empirical <span class="ot">&lt;-</span> <span class="fu">mapply</span>(</span>
+<span id="cb2-8"><a href="#cb2-8" tabindex="-1"></a>  <span class="cf">function</span>(a, g) <span class="fu">mean</span>(<span class="fu">rmhn</span>(<span class="dv">5000</span>, <span class="at">alpha =</span> a, <span class="at">beta =</span> <span class="dv">1</span>, <span class="at">gamma =</span> g, <span class="at">method =</span> <span class="st">&quot;rtdr&quot;</span>)),</span>
+<span id="cb2-9"><a href="#cb2-9" tabindex="-1"></a>  cases<span class="sc">$</span>alpha, cases<span class="sc">$</span>gamma</span>
+<span id="cb2-10"><a href="#cb2-10" tabindex="-1"></a>)</span>
+<span id="cb2-11"><a href="#cb2-11" tabindex="-1"></a>theoretical <span class="ot">&lt;-</span> <span class="fu">mapply</span>(mhn_mean, cases<span class="sc">$</span>alpha, <span class="at">beta =</span> <span class="dv">1</span>, cases<span class="sc">$</span>gamma)</span>
+<span id="cb2-12"><a href="#cb2-12" tabindex="-1"></a><span class="fu">data.frame</span>(cases,</span>
+<span id="cb2-13"><a href="#cb2-13" tabindex="-1"></a>           <span class="at">empirical_mean   =</span> <span class="fu">round</span>(empirical,   <span class="dv">4</span>),</span>
+<span id="cb2-14"><a href="#cb2-14" tabindex="-1"></a>           <span class="at">theoretical_mean =</span> <span class="fu">round</span>(theoretical, <span class="dv">4</span>))</span>
+<span id="cb2-15"><a href="#cb2-15" tabindex="-1"></a><span class="co">#&gt;   region alpha gamma empirical_mean theoretical_mean</span></span>
+<span id="cb2-16"><a href="#cb2-16" tabindex="-1"></a><span class="co">#&gt; 1    (a)   2.0   0.5         1.0126           1.0016</span></span>
+<span id="cb2-17"><a href="#cb2-17" tabindex="-1"></a><span class="co">#&gt; 2    (b)   0.7   1.0         0.6442           0.6424</span></span>
+<span id="cb2-18"><a href="#cb2-18" tabindex="-1"></a><span class="co">#&gt; 3    (c)   0.3   0.5         0.2972           0.2823</span></span>
+<span id="cb2-19"><a href="#cb2-19" tabindex="-1"></a><span class="co">#&gt; 4    (d)   0.3   5.0         2.3321           2.3221</span></span></code></pre></div>
+<p>The four rows hit the right means to two-to-three decimal places —
+about the sampling tolerance at <span class="math inline">\(n =
+5000\)</span>.</p>
+</div>
+</div>
+<div id="the-rmhnmethod-auto-dispatch" class="section level2" number="7">
+<h2><span class="header-section-number">7</span> The
+<code>rmhn(method = &quot;auto&quot;)</code> dispatch</h2>
+<p><code>rmhn</code> exposes three values of <code>method</code>:
+<code>&quot;sun&quot;</code> (force the Sun Algorithm 1 / 3 path),
+<code>&quot;rtdr&quot;</code> (force the Gao &amp; Wang RTDR path), and
+<code>&quot;auto&quot;</code> (default). The <code>&quot;auto&quot;</code> route is the
+package’s recommendation; it composes the four shortcuts above into one
+decision tree (this is the Step 3.7.3 final form, confirmed by the
+benchmarks under <code>inst/benchmarks/</code>):</p>
+<pre><code>                  rmhn(n, alpha, beta, gamma, method = &quot;auto&quot;)
+                                    │
+                                    ▼
+       ┌─ alpha = 1, gamma = 0  →  half-normal       (Sun et al. 2023, Lemma 6c)
+       │
+       ├─ gamma = 0             →  sqrt-Gamma        (Sun et al. 2023, Lemma 6a)
+       │
+       ├─ alpha = 1             →  truncated normal  (Sun et al. 2023, Lemma 6b)
+       │
+       ├─ alpha &lt; 1 and gamma &gt; 0
+       │      →  RTDR  (regions (b) / (c) / (d), Gao &amp; Wang 2025, Theorems 3.2, 4.4)
+       │
+       ├─ alpha &gt; 1 and gamma &gt; 0
+       │      →  Sun Algorithm 1                    (Sun et al. 2023, Theorems 1, 2)
+       │
+       └─ gamma &lt; 0
+              ├─ samples_per_setup ≥ 25  →  RTDR    (region (a))
+              └─ samples_per_setup &lt; 25  →  Sun Algorithm 3</code></pre>
+<p>Write <span class="math inline">\(S\)</span> for the
+<code>samples_per_setup</code> quantity in the last branch,</p>
+<p><span class="math display">\[S \;=\; \max\!\Big(1,\;
+\frac{n}{\max(L_{\alpha},\, L_{\beta},\, L_{\gamma})}\Big),\]</span></p>
+<p>where <span class="math inline">\(L_{\alpha}\)</span>, <span class="math inline">\(L_{\beta}\)</span>, <span class="math inline">\(L_{\gamma}\)</span> are the recycled lengths of
+the three parameter vectors. The intuition follows from decomposing the
+expected time per draw as</p>
+<p><span class="math display">\[E[\text{time}/\text{draw}]
+\;=\; \frac{T_{\text{setup}}}{n}
+       \;+\; C_{\text{reject}} \times
+T_{\text{per-proposal}},\]</span></p>
+<p>where <span class="math inline">\(T_{\text{setup}}\)</span> is the
+one-off cost of preparing the proposal (a single <span class="math inline">\(m_{\text{init}}\)</span> formula plus at most one
+Newton step for Sun Algorithm 3; an iterative contact-point search for
+RTDR), <span class="math inline">\(C_{\text{reject}} =
+1/\text{acceptance}\)</span> is the expected number of proposals per
+accepted draw, and <span class="math inline">\(T_{\text{per-proposal}}\)</span> is the cost of
+one proposal cycle (sample plus acceptance log-ratio evaluation).</p>
+<p>For <span class="math inline">\(\gamma &lt; 0\)</span> the two
+samplers sit on opposite ends of this trade-off:</p>
+<ul>
+<li><strong>Sun Algorithm 3</strong> has a <em>cheap setup</em> — <span class="math inline">\(m_{\text{init}}\)</span> has a closed form, and
+the optional Newton refinement uses one
+<code>boost::math::digamma</code> evaluation — but a <em>more expensive
+per-proposal</em>: every proposal calls <code>rgamma</code>, evaluates
+the fractional power <span class="math inline">\(X = m \cdot
+T^{r}\)</span>, and the acceptance log-ratio carries the same <span class="math inline">\((X/m)^{1/r}\)</span> term.</li>
+<li><strong>RTDR (region (a))</strong> has a <em>more expensive
+setup</em>: each contact point <span class="math inline">\(t_{l}\)</span>, <span class="math inline">\(t_{r}\)</span> is found by an iterative search
+that terminates as soon as <span class="math inline">\(\log
+f(m)/f(t)\)</span> lands in the bracket <span class="math inline">\([0.46,\, 2.49]\)</span>. But the
+<em>per-proposal</em> is light: sampling from the piecewise envelope is
+straight arithmetic plus a single <code>log</code>, and the acceptance
+ratio adds only two more <code>log</code>s.</li>
+</ul>
+<p>When <span class="math inline">\(S\)</span> is large the per-proposal
+term dominates and RTDR wins; when it is small — the Gibbs case where
+each iteration redraws <span class="math inline">\((\alpha, \beta,
+\gamma)\)</span> — the setup term dominates and Sun Algorithm 3 wins.
+The crossover at 25 is the round value chosen inside the empirical
+break-even window <span class="math inline">\(n \in [10,\, 25]\)</span>
+observed at every one of the 20 surveyed <span class="math inline">\((\alpha, \gamma)\)</span> cells in <a href="https://github.com/t-momozaki/mhn/blob/main/inst/benchmarks/auto_dispatch.R">inst/benchmarks/auto_dispatch.R</a>.</p>
+<p>A small concrete demonstration: with <code>set.seed</code> aligned,
+<code>method = &quot;auto&quot;</code> and the <em>expected</em> forced method
+produce bit-identical draws on each branch.</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a><span class="co"># Branch: alpha &lt; 1 and gamma &gt; 0  --&gt;  expects RTDR</span></span>
+<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">7</span>); auto1 <span class="ot">&lt;-</span> <span class="fu">rmhn</span>(<span class="dv">20</span>, <span class="at">alpha =</span> <span class="fl">0.7</span>, <span class="at">beta =</span> <span class="dv">1</span>, <span class="at">gamma =</span> <span class="dv">2</span>)</span>
+<span id="cb4-3"><a href="#cb4-3" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">7</span>); rtdr1 <span class="ot">&lt;-</span> <span class="fu">rmhn</span>(<span class="dv">20</span>, <span class="at">alpha =</span> <span class="fl">0.7</span>, <span class="at">beta =</span> <span class="dv">1</span>, <span class="at">gamma =</span> <span class="dv">2</span>, <span class="at">method =</span> <span class="st">&quot;rtdr&quot;</span>)</span>
+<span id="cb4-4"><a href="#cb4-4" tabindex="-1"></a><span class="fu">identical</span>(auto1, rtdr1)</span>
+<span id="cb4-5"><a href="#cb4-5" tabindex="-1"></a><span class="co">#&gt; [1] TRUE</span></span>
+<span id="cb4-6"><a href="#cb4-6" tabindex="-1"></a></span>
+<span id="cb4-7"><a href="#cb4-7" tabindex="-1"></a><span class="co"># Branch: alpha &gt; 1 and gamma &gt; 0  --&gt;  expects Sun Algorithm 1</span></span>
+<span id="cb4-8"><a href="#cb4-8" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">7</span>); auto2 <span class="ot">&lt;-</span> <span class="fu">rmhn</span>(<span class="dv">20</span>, <span class="at">alpha =</span> <span class="dv">3</span>,   <span class="at">beta =</span> <span class="dv">1</span>, <span class="at">gamma =</span> <span class="dv">2</span>)</span>
+<span id="cb4-9"><a href="#cb4-9" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">7</span>); sun2  <span class="ot">&lt;-</span> <span class="fu">rmhn</span>(<span class="dv">20</span>, <span class="at">alpha =</span> <span class="dv">3</span>,   <span class="at">beta =</span> <span class="dv">1</span>, <span class="at">gamma =</span> <span class="dv">2</span>, <span class="at">method =</span> <span class="st">&quot;sun&quot;</span>)</span>
+<span id="cb4-10"><a href="#cb4-10" tabindex="-1"></a><span class="fu">identical</span>(auto2, sun2)</span>
+<span id="cb4-11"><a href="#cb4-11" tabindex="-1"></a><span class="co">#&gt; [1] TRUE</span></span>
+<span id="cb4-12"><a href="#cb4-12" tabindex="-1"></a></span>
+<span id="cb4-13"><a href="#cb4-13" tabindex="-1"></a><span class="co"># Branch: gamma &lt; 0 with samples_per_setup &lt; 25  --&gt;  expects Sun Algorithm 3</span></span>
+<span id="cb4-14"><a href="#cb4-14" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">7</span>); auto3 <span class="ot">&lt;-</span> <span class="fu">rmhn</span>(<span class="dv">5</span>,  <span class="at">alpha =</span> <span class="dv">2</span>,   <span class="at">beta =</span> <span class="dv">1</span>, <span class="at">gamma =</span> <span class="sc">-</span><span class="dv">1</span>)</span>
+<span id="cb4-15"><a href="#cb4-15" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">7</span>); sun3  <span class="ot">&lt;-</span> <span class="fu">rmhn</span>(<span class="dv">5</span>,  <span class="at">alpha =</span> <span class="dv">2</span>,   <span class="at">beta =</span> <span class="dv">1</span>, <span class="at">gamma =</span> <span class="sc">-</span><span class="dv">1</span>, <span class="at">method =</span> <span class="st">&quot;sun&quot;</span>)</span>
+<span id="cb4-16"><a href="#cb4-16" tabindex="-1"></a><span class="fu">identical</span>(auto3, sun3)</span>
+<span id="cb4-17"><a href="#cb4-17" tabindex="-1"></a><span class="co">#&gt; [1] TRUE</span></span></code></pre></div>
+<p>The three <code>TRUE</code> outputs are the same invariant that
+<code>tests/testthat/test-rmhn.R</code> enforces as a regression
+test.</p>
+</div>
+<div id="references" class="section level2" number="8">
+<h2><span class="header-section-number">8</span> References</h2>
+<p>Sun, J., Kong, M., &amp; Pal, S. (2023). The Modified-Half-Normal
+distribution: Properties and an efficient sampling scheme.
+<em>Communications in Statistics – Theory and Methods</em>, 52(5),
+1507–1536. </p>
+<p>Gao, F. &amp; Wang, H.-B. (2025). Generating modified-half-normal
+random variates by a relaxed transformed density rejection method.
+<em>Communications in Statistics – Simulation and Computation</em>. </p>
+<p>Robert, C. P. (1995). Simulation of truncated normal variables.
+<em>Statistics and Computing</em>, 5(2), 121–125.</p>
+</div>
+
+
+
+<!-- code folding -->
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>
