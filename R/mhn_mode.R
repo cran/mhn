@@ -9,8 +9,10 @@
 #' @param beta Scale parameter (\eqn{\beta > 0}).
 #' @param gamma Location parameter (\eqn{\gamma \in R}).
 #'
-#' @return A numeric scalar. Returns \code{NA} when no interior mode exists
-#'   (density is monotonically decreasing on \eqn{(0, \infty)}).
+#' @return A numeric scalar. For \eqn{0 < \alpha < 1} with no interior mode
+#'   (density monotonically decreasing on \eqn{(0, \infty)}) the result is
+#'   \code{NA}; at \eqn{\alpha = 1} with \eqn{\gamma \leq 0} the mode sits on
+#'   the boundary and 0 is returned. See Details.
 #'
 #' @details
 #' The mode depends on \eqn{\alpha}:
@@ -34,7 +36,7 @@
 #' Sun, J., Kong, M., & Pal, S. (2023). The Modified-Half-Normal
 #' distribution: Properties and an efficient sampling scheme.
 #' \emph{Communications in Statistics - Theory and Methods}, 52(5),
-#' 1507--1536. (Lemma 3b--d, Lemma 6b)
+#' 1591--1613. (Lemma 3b--d, Lemma 6b)
 #'
 #' @seealso \code{\link{dmhn}}, \code{\link{mhn_mean}}
 #'

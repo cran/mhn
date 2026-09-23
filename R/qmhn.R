@@ -27,7 +27,10 @@
 #'
 #' @return A numeric vector. The output length equals
 #'   \code{max(length(p), length(alpha), length(beta), length(gamma))}; each
-#'   input is recycled to that length following standard R recycling rules.
+#'   input is recycled to that length following standard R recycling rules,
+#'   with one exception: a zero-length \code{alpha}, \code{beta} or
+#'   \code{gamma} is an error rather than a \code{numeric(0)} result. Only a
+#'   zero-length \code{p} returns \code{numeric(0)}.
 #'   \code{qmhn(0) = 0} and \code{qmhn(1) = Inf}. Probabilities outside
 #'   \eqn{[0, 1]} yield \code{NaN}.
 #'
@@ -42,14 +45,14 @@
 #' quantile is evaluated element-wise.  The Fox-Wright \eqn{\Psi}
 #' normalizing constant and moments \eqn{E(X)}, \eqn{\mathrm{Var}(X)}
 #' (used to size the root-finder bracket) are recomputed only when
-#' consecutive elements present a different \eqn{(\alpha, \beta, \gamma)}
+#' the recycling cycle presents a distinct \eqn{(\alpha, \beta, \gamma)}
 #' triple.
 #'
 #' @references
 #' Sun, J., Kong, M., & Pal, S. (2023). The Modified-Half-Normal
 #' distribution: Properties and an efficient sampling scheme.
 #' \emph{Communications in Statistics - Theory and Methods}, 52(5),
-#' 1507--1536.
+#' 1591--1613.
 #'
 #' @seealso \code{\link{dmhn}}, \code{\link{pmhn}}, \code{\link{rmhn}}
 #'
@@ -72,5 +75,5 @@ qmhn <- function(p, alpha = 1, beta = 1, gamma = 0,
                  lower.tail = TRUE, log.p = FALSE) {
   .qmhn_cpp(as.numeric(p),
             as.numeric(alpha), as.numeric(beta), as.numeric(gamma),
-            isTRUE(lower.tail), isTRUE(log.p))
+            .as_flag(lower.tail, "lower.tail"), .as_flag(log.p, "log.p"))
 }

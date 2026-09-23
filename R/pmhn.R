@@ -19,7 +19,8 @@
 #' the paper).  The infinite sum is truncated at the constructive bound
 #' \eqn{K = \max\{K_1, K_2\}} from Sun et al. (2023), Supplementary
 #' Lemma 10(d), which makes the truncation residual bounded by the
-#' user's tolerance divided by \eqn{\Psi}.  When
+#' working tolerance \code{sqrt(.Machine$double.eps)} divided by
+#' \eqn{\Psi}.  When
 #' double-precision cancellation in the alternating-sign accumulator
 #' for \eqn{\gamma < 0} would exceed that tolerance, the series is
 #' replaced by a Gauss-Kronrod (or tanh-sinh for \eqn{\alpha < 1})
@@ -39,7 +40,10 @@
 #'
 #' @return A numeric vector. The output length equals
 #'   \code{max(length(q), length(alpha), length(beta), length(gamma))}; each
-#'   input is recycled to that length following standard R recycling rules.
+#'   input is recycled to that length following standard R recycling rules,
+#'   with one exception: a zero-length \code{alpha}, \code{beta} or
+#'   \code{gamma} is an error rather than a \code{numeric(0)} result. Only a
+#'   zero-length \code{q} returns \code{numeric(0)}.
 #'   For \code{q <= 0} the CDF is 0; for \code{q = Inf} it is 1.
 #'
 #' @details
@@ -51,8 +55,8 @@
 #'
 #' When any of \code{alpha}, \code{beta}, \code{gamma} is a vector, the CDF
 #' is evaluated element-wise.  The Fox-Wright \eqn{\Psi} normalizing
-#' constant is recomputed only when consecutive elements present a
-#' different \eqn{(\alpha, \beta, \gamma)} triple, so passing grouped
+#' constant is recomputed only when the recycling cycle presents a
+#' distinct \eqn{(\alpha, \beta, \gamma)} triple, so passing grouped
 #' parameters is significantly faster than calling \code{pmhn} inside an
 #' R loop.
 #'
@@ -60,7 +64,7 @@
 #' Sun, J., Kong, M., & Pal, S. (2023). The Modified-Half-Normal
 #' distribution: Properties and an efficient sampling scheme.
 #' \emph{Communications in Statistics - Theory and Methods}, 52(5),
-#' 1507--1536.
+#' 1591--1613.
 #'
 #' @seealso \code{\link{dmhn}}, \code{\link{qmhn}}, \code{\link{rmhn}}
 #'
@@ -81,7 +85,7 @@ pmhn <- function(q, alpha = 1, beta = 1, gamma = 0,
                  lower.tail = TRUE, log.p = FALSE) {
   .pmhn_cpp(as.numeric(q),
             as.numeric(alpha), as.numeric(beta), as.numeric(gamma),
-            isTRUE(lower.tail), isTRUE(log.p))
+            .as_flag(lower.tail, "lower.tail"), .as_flag(log.p, "log.p"))
 }
 
 # Diagnostic hook for inst/audits/cdf_series_accuracy.R: evaluates

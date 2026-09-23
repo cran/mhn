@@ -38,7 +38,7 @@
 #' @section References:
 #' Sun, J., Kong, M., & Pal, S. (2023). The Modified-Half-Normal distribution:
 #' Properties and an efficient sampling scheme.
-#' \emph{Communications in Statistics - Theory and Methods}, 52(5), 1507-1536.
+#' \emph{Communications in Statistics - Theory and Methods}, 52(5), 1591-1613.
 #' \doi{10.1080/03610926.2021.1934700}
 #'
 #' Gao, F. & Wang, H.-B. (2025). Generating modified-half-normal random
@@ -46,10 +46,17 @@
 #' \emph{Communications in Statistics - Simulation and Computation}.
 #' \doi{10.1080/03610918.2025.2524551}
 #'
-#' @importFrom stats dgamma pgamma qgamma rgamma
-#' @importFrom stats dnorm pnorm qnorm rnorm
-#' @importFrom stats integrate uniroot
 #' @importFrom Rcpp sourceCpp
 #' @useDynLib mhn, .registration = TRUE
 #' @keywords internal
 "_PACKAGE"
+
+# Coerce a d/p/q logical flag the way base R's distribution functions do, so
+# that log = 1 behaves as log = TRUE rather than silently selecting the other
+# branch.  Rejecting NA is stricter than base R, but a flag that cannot be
+# resolved should not quietly pick a branch.
+.as_flag <- function(x, name) {
+  v <- as.logical(x)[1L]
+  if (is.na(v)) stop("'", name, "' must be TRUE or FALSE", call. = FALSE)
+  v
+}
