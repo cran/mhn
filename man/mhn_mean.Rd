@@ -7,32 +7,62 @@
 mhn_mean(alpha, beta, gamma)
 }
 \arguments{
-\item{alpha}{Shape parameter (\eqn{\alpha > 0}).}
+\item{alpha}{Shape parameter (\eqn{\alpha > 0}), a single number.}
 
-\item{beta}{Scale parameter (\eqn{\beta > 0}).}
+\item{beta}{Rate-type parameter (\eqn{\beta > 0}), the coefficient of the
+Gaussian tail \eqn{\exp(-\beta x^2)}{exp(-beta x^2)}; larger values pull
+mass toward zero. A single number.}
 
-\item{gamma}{Location parameter (\eqn{\gamma \in R}).}
+\item{gamma}{Tilt parameter (\eqn{\gamma \in R}{gamma in R}), the
+coefficient of the exponential tilt \eqn{\exp(\gamma x)}{exp(gamma x)}.
+A single number.}
 }
 \value{
 A numeric scalar.
 }
 \description{
-Computes \eqn{E(X)} for \eqn{X \sim \mathrm{MHN}(\alpha, \beta, \gamma)}.
+Computes \eqn{E(X)} for
+\eqn{X \sim \mathrm{MHN}(\alpha, \beta, \gamma)}{X ~ MHN(alpha, beta,
+gamma)}.
 }
 \details{
-The mean is computed as a ratio of Fox-Wright Psi functions:
-\deqn{E(X) = \frac{\Psi[(\alpha+1)/2,\, \gamma/\sqrt{\beta}]}{
-  \sqrt{\beta}\, \Psi[\alpha/2,\, \gamma/\sqrt{\beta}]}}
+By Sun et al. (2023, Lemma 2a) the mean is a ratio of Fox-Wright
+\eqn{\Psi}{Psi} functions,
+\deqn{E(X) = \frac{\Psi[(\alpha+1)/2,\, z]}{\sqrt{\beta}\,
+  \Psi[\alpha/2,\, z]}, \qquad z = \gamma/\sqrt{\beta}.}{%
+  E(X) = Psi[(alpha+1)/2, z] / (sqrt(beta) Psi[alpha/2, z]),
+  z = gamma/sqrt(beta).}
+At \eqn{\gamma = 0} the ratio is
+\eqn{\Gamma((\alpha+1)/2) / (\sqrt{\beta}\,
+\Gamma(\alpha/2))}{Gamma((alpha+1)/2) / (sqrt(beta) Gamma(alpha/2))}
+(Sun et al. 2023, Lemma 6a). For every \eqn{\alpha > 0}{alpha > 0} the
+mean is at most
+\eqn{(\gamma + \sqrt{\gamma^2 + 8\alpha\beta})/(4\beta)}{(gamma +
+sqrt(gamma^2 + 8 alpha beta)) / (4 beta)} (Sun et al. 2023, Lemma 4a and
+the remark after it).
+
+The ratio is used where it can be evaluated accurately. Where it cannot,
+mainly under a strong tilt or at a very large \eqn{\alpha}{alpha}, the
+mean is instead obtained by numerical integration of the unnormalised
+density, which needs no \eqn{\Psi}{Psi} value.
+
+The function is not vectorised in its parameters: \code{alpha},
+\code{beta} and \code{gamma} must each be a single number. To evaluate
+several parameter triples, use \code{\link{mapply}}, as in the examples.
+
+The numerical methods are described in Appendix A of
+\code{vignette("theory", package = "mhn")}.
 }
 \examples{
 mhn_mean(alpha = 2, beta = 1, gamma = 0)
+mapply(mhn_mean, alpha = c(0.5, 2, 5), beta = 1, gamma = c(-1, 0, 3))
 
 }
 \references{
 Sun, J., Kong, M., & Pal, S. (2023). The Modified-Half-Normal
 distribution: Properties and an efficient sampling scheme.
 \emph{Communications in Statistics - Theory and Methods}, 52(5),
-1591--1613. (Lemma 2a)
+1591--1613. (Lemmas 2a, 4a and 6a)
 }
 \seealso{
 \code{\link{mhn_var}}, \code{\link{dmhn}}

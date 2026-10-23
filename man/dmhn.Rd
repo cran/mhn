@@ -12,23 +12,42 @@ dmhn(x, alpha = 1, beta = 1, gamma = 0, log = FALSE)
 \item{alpha}{Shape parameter (\eqn{\alpha > 0}). Scalar or numeric vector.
 Default: 1.}
 
-\item{beta}{Scale parameter (\eqn{\beta > 0}). Scalar or numeric vector.
-Default: 1.}
+\item{beta}{Rate-type parameter (\eqn{\beta > 0}), the coefficient of
+the Gaussian tail \eqn{\exp(-\beta x^2)}{exp(-beta x^2)}; larger values
+pull mass toward zero. Scalar or numeric vector. Default: 1.}
 
-\item{gamma}{Location parameter (\eqn{\gamma \in R}). Scalar or numeric
-vector. Default: 0.}
+\item{gamma}{Tilt parameter (\eqn{\gamma \in R}{gamma in R}), the
+coefficient of the exponential tilt \eqn{\exp(\gamma x)}{exp(gamma x)}.
+Scalar or numeric vector. Default: 0.}
 
 \item{log}{Logical; if \code{TRUE}, log-density is returned. Default:
-\code{FALSE}.}
+\code{FALSE}. Read with \code{as.logical()}, so that 1 is \code{TRUE};
+a value that gives \code{NA} is an error.}
 }
 \value{
 A numeric vector. The output length equals
-\code{max(length(x), length(alpha), length(beta), length(gamma))}; each
-input is recycled to that length following standard R recycling rules,
-with one exception: a zero-length \code{alpha}, \code{beta} or
-\code{gamma} is an error rather than a \code{numeric(0)} result. Only a
-zero-length \code{x} returns \code{numeric(0)}.
+\code{max(length(x), length(alpha), length(beta), length(gamma))}, or 0
+if any of them has length zero; each input is recycled to that length
+following standard R recycling rules.
 For \code{x < 0}, the density is 0 (\code{-Inf} if \code{log = TRUE}).
+At \code{x = 0} it is \code{Inf} for \code{alpha < 1}, the truncated
+normal density at 0 for \code{alpha = 1} (\eqn{2\sqrt{\beta/\pi}}{2
+  sqrt(beta / pi)} at \code{gamma = 0}), and 0 for \code{alpha > 1}.
+As in \code{\link[stats]{dgamma}}, an element whose parameters lie
+outside the parameter space (\code{alpha} or \code{beta} not positive
+and finite, or \code{gamma} not finite) is \code{NaN}, with a warning,
+and an element with an \code{NA} or \code{NaN} among its inputs is
+\code{NA} or \code{NaN} (\code{NA} if any of them is \code{NA}),
+without one; the other elements are unaffected.  The arguments must be
+numeric (double, integer or logical): a factor, a character string, a
+complex number, a list or \code{NULL} is an error, as in
+\code{\link[stats]{dnorm}}.
+As with \code{\link[stats]{dnorm}}, the attributes of \code{x} (names,
+\code{dim}, \code{dimnames}) are kept when the result has the length of
+\code{x}; a classed \code{x}, such as a Date, is taken as its numbers
+and gives a plain vector.
+Unlike \code{dnorm}, attributes of a longer parameter vector are not
+carried over.
 }
 \description{
 Computes the probability density function (or log-density) of the
@@ -36,32 +55,101 @@ Modified Half-Normal (MHN) distribution with parameters \code{alpha},
 \code{beta}, and \code{gamma}.
 }
 \details{
-The MHN density is
+The MHN density (Sun et al. 2023, Lemma 1a) is
 \deqn{f(x \mid \alpha, \beta, \gamma) =
   \frac{2 \beta^{\alpha/2} x^{\alpha-1}
   \exp(-\beta x^2 + \gamma x)}{\Psi[\alpha/2, \gamma/\sqrt{\beta}]}
-  \quad (x > 0)}
-where \eqn{\Psi[a, z]} is the Fox-Wright Psi function
-(Sun et al., 2023, Lemma 1a).
+  \quad (x > 0)}{
+  f(x | alpha, beta, gamma) = 2 beta^(alpha/2) x^(alpha-1)
+  exp(-beta x^2 + gamma x) / Psi[alpha/2, gamma/sqrt(beta)],  x > 0}
+where \eqn{\Psi[a, z] = \sum_{n \ge 0} \Gamma(a + n/2) z^n / n!}{Psi[a, z] =
+sum_{n >= 0} Gamma(a + n/2) z^n / n!} is the Fox-Wright function
+\eqn{{}_1\Psi_1[(a, 1/2); (1, 0); z]}{1Psi1[(a, 1/2); (1, 0); z]}
+(Sun et al. 2023, Supplementary Eq. (1)).
 
 The default parameters \code{alpha = 1, beta = 1, gamma = 0} correspond
-to the half-normal distribution \eqn{\mathrm{HN}(1/\sqrt{2})}.
+to the half-normal distribution
+\eqn{\mathrm{HN}(1/\sqrt{2})}{HN(1/sqrt(2))}.
 
-Special cases are detected and dispatched to closed-form solutions:
+At \eqn{\gamma = 0}{gamma = 0} and at \eqn{\alpha = 1}{alpha = 1}
+exactly the density is computed from the closed form of the law it
+reduces to; a shape or a tilt merely close to those values is a different
+law, and is computed as in the general case:
 \itemize{
-\item \eqn{\gamma = 0}: sqrt-Gamma distribution
-\item \eqn{\alpha = 1}: truncated normal distribution
+\item \eqn{\gamma = 0}: sqrt-Gamma distribution, for
+\eqn{\alpha \le 10^6}{alpha <= 1e6}; a larger shape is computed as in
+the general case.
+\item \eqn{\alpha = 1}: truncated normal distribution (Sun et al.,
+2023, Lemma 6b), the normal law of mean
+\eqn{\mu = \gamma/(2\beta)}{mu = gamma/(2 beta)} and standard deviation
+\eqn{\sigma = 1/\sqrt{2\beta}}{sigma = 1/sqrt(2 beta)} restricted to
+\eqn{(0, \infty)}{(0, Inf)}.  However far 0 lies from the mean, the
+density holds to the Exponential and normal limits it tends to; where
+\eqn{\gamma/(2\beta)}{gamma/(2 beta)} passes the largest double under
+a negative tilt, it is the Exponential density
+\eqn{-\gamma e^{\gamma x}}{-gamma exp(gamma x)}.
 }
 
-Computation is performed in log-space to avoid numerical
-underflow/overflow.
+Otherwise the log density is computed from the formula above; for a large
+shape or tilt, where the terms of that formula grow too large, the law is
+measured instead from the peak of the density of \eqn{\log X}{log X}.
+
+\strong{Accuracy and range.}  With
+\eqn{z = \gamma/\sqrt{\beta}}{z = gamma/sqrt(beta)} the scale-free tilt,
+for \eqn{\alpha \le 10^{15}}{alpha <= 1e15},
+\eqn{|z| \le 10^{15}}{|z| <= 1e15} and \eqn{\beta}{beta} in
+\eqn{[10^{-300}, 10^{300}]}{[1e-300, 1e300]} the log density is accurate
+to the working tolerance \code{sqrt(.Machine$double.eps)}.  Outside that
+range the law can be narrower than the spacing of the doubles near its
+peak (for \eqn{z}{z} above about \eqn{10^{16}}{1e16}, or
+\eqn{\alpha}{alpha} above about \eqn{10^{31}}{1e31}), and the density is
+still that of the exact law at the double \code{x} given, almost always
+0 there.  For a positive tilt whose mode
+\eqn{\gamma/(2\beta)}{gamma / (2 beta)} lies beyond the largest double,
+which needs a subnormal \eqn{\beta}{beta}, \code{log = TRUE} returns
+\code{-Inf} where the log density is finite.  Two cases give \code{NA}
+with a warning instead: within 45 standard deviations of the peak of a
+law whose peak cannot be placed to within \eqn{10^{-11}}{1e-11} of its
+standard deviation, which needs a law narrower than the spacing by a
+factor of order \eqn{10^{19}}{1e19} or more and then happens for some
+parameters only (as at
+\eqn{\alpha = \beta = \gamma = 10^{200}}{alpha = beta = gamma = 1e200});
+and where the whole law lies beyond the largest double
+without a positive tilt to place it (a shape near the largest double
+against a subnormal \eqn{\beta}{beta}).  Where \eqn{z}{z} itself
+overflows, the law is its limit: Gamma(\eqn{\alpha}{alpha}, rate
+\eqn{|\gamma|}{|gamma|}) under a negative tilt and normal about its mode
+with variance \eqn{1/(2\beta)}{1/(2 beta)} under a positive one.
+
+A subnormal shape, below the smallest normal double
+\eqn{2.2 \times 10^{-308}}{2.2e-308}, is computed apart, at
+\eqn{\gamma = 0}{gamma = 0} too, from a form of the law in which
+\eqn{\alpha}{alpha} only multiplies and \eqn{X} lies below the smallest
+positive double with probability \eqn{1 / (1 + w)}, where \eqn{w},
+defined in Appendix A.4 of the vignette cited below, grows with the tilt.  Below a tilt \eqn{z} of about 52 (53 at
+the smallest shapes) that probability is 1 in double precision:
+\code{\link{pmhn}} is 1 at every positive \eqn{x}, \code{\link{qmhn}} is
+0 for every lower-tail probability below 1 given on the probability
+scale (the upper tail, or \code{log.p = TRUE}, still gives the quantiles
+of the far upper tail), and \code{\link{rmhn}} returns 0.  Above a tilt
+between about 55 and 56.3, as \eqn{\alpha}{alpha} falls, the mass by the
+origin is at most \eqn{2^{-64}}{2^-64}, about
+\eqn{5.4 \times 10^{-20}}{5.4e-20}, of the whole, and the density, the
+upper tail, the moments and the law of the draws no longer depend on
+\eqn{\alpha}{alpha}.
 
 When any of \code{alpha}, \code{beta}, \code{gamma} is a vector, the
-density is evaluated element-wise. The Fox-Wright \eqn{\Psi}
-normalizing constant is recomputed only when the recycling cycle
-presents a distinct \eqn{(\alpha, \beta, \gamma)} triple, so passing
-grouped parameters is significantly faster than calling \code{dmhn}
-inside an R loop.
+density is evaluated element-wise.  The Fox-Wright \eqn{\Psi}
+normalizing constant is computed once for each position of the recycling
+cycle while that cycle is at most 256 long, and otherwise once for each
+run of consecutive elements that share the
+\eqn{(\alpha, \beta, \gamma)} triple.  So recycled parameters, and
+parameter vectors in which equal triples are adjacent, are much faster
+than triples that alternate along a long vector, and than calling
+\code{dmhn} inside an R loop.
+
+The numerical methods, and the reasons for the ranges above, are
+described in Appendix A of \code{vignette("theory", package = "mhn")}.
 }
 \examples{
 x <- seq(0, 5, length.out = 100)

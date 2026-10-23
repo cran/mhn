@@ -50,13 +50,20 @@ set.seed(7); auto1 <- rmhn(20, alpha = 0.7, beta = 1, gamma = 2)
 set.seed(7); rtdr1 <- rmhn(20, alpha = 0.7, beta = 1, gamma = 2, method = "rtdr")
 identical(auto1, rtdr1)
 
-# Branch: alpha > 1 and gamma > 0  -->  expects Sun Algorithm 1
-set.seed(7); auto2 <- rmhn(20, alpha = 3,   beta = 1, gamma = 2)
-set.seed(7); sun2  <- rmhn(20, alpha = 3,   beta = 1, gamma = 2, method = "sun")
+# Branch: alpha > 1, gamma > 2 sqrt(alpha beta)  -->  expects Sun Algorithm 1
+set.seed(7); auto2 <- rmhn(20, alpha = 3,   beta = 1, gamma = 5)
+set.seed(7); sun2  <- rmhn(20, alpha = 3,   beta = 1, gamma = 5, method = "sun")
 identical(auto2, sun2)
 
-# Branch: gamma < 0 with samples_per_setup < 25  -->  expects Sun Algorithm 3
-set.seed(7); auto3 <- rmhn(5,  alpha = 2,   beta = 1, gamma = -1)
-set.seed(7); sun3  <- rmhn(5,  alpha = 2,   beta = 1, gamma = -1, method = "sun")
-identical(auto3, sun3)
+# Branch: alpha > 1, gamma <= sqrt(alpha beta), 5 or more draws per setup
+#   -->  expects RTDR
+set.seed(7); auto3 <- rmhn(20, alpha = 3,   beta = 1, gamma = 1.5)
+set.seed(7); rtdr3 <- rmhn(20, alpha = 3,   beta = 1, gamma = 1.5, method = "rtdr")
+identical(auto3, rtdr3)
+
+# Branch: gamma < 0, 0.1 <= alpha < 1, fewer than 5 draws per setup
+#   -->  expects Sun Algorithm 3
+set.seed(7); auto4 <- rmhn(4,  alpha = 0.5, beta = 1, gamma = -1)
+set.seed(7); sun4  <- rmhn(4,  alpha = 0.5, beta = 1, gamma = -1, method = "sun")
+identical(auto4, sun4)
 

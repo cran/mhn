@@ -7,36 +7,55 @@
 mhn_var(alpha, beta, gamma)
 }
 \arguments{
-\item{alpha}{Shape parameter (\eqn{\alpha > 0}).}
+\item{alpha}{Shape parameter (\eqn{\alpha > 0}), a single number.}
 
-\item{beta}{Scale parameter (\eqn{\beta > 0}).}
+\item{beta}{Rate-type parameter (\eqn{\beta > 0}), the coefficient of the
+Gaussian tail \eqn{\exp(-\beta x^2)}{exp(-beta x^2)}; larger values pull
+mass toward zero. A single number.}
 
-\item{gamma}{Location parameter (\eqn{\gamma \in R}).}
+\item{gamma}{Tilt parameter (\eqn{\gamma \in R}{gamma in R}), the
+coefficient of the exponential tilt \eqn{\exp(\gamma x)}{exp(gamma x)}.
+A single number.}
 }
 \value{
 A numeric scalar.
 }
 \description{
-Computes \eqn{\mathrm{Var}(X)} for
-\eqn{X \sim \mathrm{MHN}(\alpha, \beta, \gamma)}.
+Computes \eqn{\mathrm{Var}(X)}{Var(X)} for
+\eqn{X \sim \mathrm{MHN}(\alpha, \beta, \gamma)}{X ~ MHN(alpha, beta,
+gamma)}.
 }
 \details{
-Uses the formula (Sun et al., 2023, Lemma 2c):
+Uses the formula (Sun et al. 2023, Lemma 2c)
 \deqn{\mathrm{Var}(X) = \frac{\alpha}{2\beta} +
-  E(X)\left(\frac{\gamma}{2\beta} - E(X)\right)}
+  E(X)\left(\frac{\gamma}{2\beta} - E(X)\right)}{Var(X) =
+  alpha/(2 beta) + E(X) (gamma/(2 beta) - E(X))}
+where it is accurate. Where it would lose accuracy, under a strong tilt
+\eqn{z = \gamma/\sqrt{\beta}}{z = gamma/sqrt(beta)} of either sign and at
+a large \eqn{\alpha}{alpha} unless \eqn{\gamma = 0}, the variance is
+instead obtained by numerical integration of the unnormalised density.
 
-For \eqn{\alpha \geq 1}, the variance satisfies
-\eqn{\mathrm{Var}(X) \leq 1/(2\beta)} (Sun et al., 2023, Lemma 4c).
+For \eqn{\alpha \ge 1}{alpha >= 1}, the variance satisfies
+\eqn{\mathrm{Var}(X) \le 1/(2\beta)}{Var(X) <= 1/(2 beta)} (Sun et al.,
+2023, Lemma 4c).
+
+The function is not vectorised in its parameters: \code{alpha},
+\code{beta} and \code{gamma} must each be a single number. To evaluate
+several parameter triples, use \code{\link{mapply}}, as in the examples.
+
+The numerical methods are described in Appendix A of
+\code{vignette("theory", package = "mhn")}.
 }
 \examples{
 mhn_var(alpha = 2, beta = 1, gamma = 0)
+mapply(mhn_var, alpha = c(0.5, 2, 5), beta = 1, gamma = c(-1, 0, 3))
 
 }
 \references{
 Sun, J., Kong, M., & Pal, S. (2023). The Modified-Half-Normal
 distribution: Properties and an efficient sampling scheme.
 \emph{Communications in Statistics - Theory and Methods}, 52(5),
-1591--1613. (Lemma 2c)
+1591--1613. (Lemmas 2c and 4c)
 }
 \seealso{
 \code{\link{mhn_mean}}, \code{\link{dmhn}}

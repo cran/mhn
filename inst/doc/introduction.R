@@ -74,9 +74,11 @@ hist(draws, breaks = 60, probability = TRUE, col = "grey90", border = "white",
 lines(x, dmhn(x, 2, 1, 1), lwd = 2, col = "tomato")
 
 ## ----rmhn-method-equiv--------------------------------------------------------
-set.seed(1); s_rtdr <- rmhn(5000, 2, 1, 1, method = "rtdr")
-set.seed(1); s_sun  <- rmhn(5000, 2, 1, 1, method = "sun")
-ks.test(s_rtdr, s_sun)$p.value
+set.seed(1)
+s_rtdr <- rmhn(5000, 2, 1, 1, method = "rtdr")
+s_sun  <- rmhn(5000, 2, 1, 1, method = "sun")
+F <- function(q) pmhn(q, 2, 1, 1)
+c(rtdr = ks.test(s_rtdr, F)$p.value, sun = ks.test(s_sun, F)$p.value)
 
 ## ----moments-table------------------------------------------------------------
 data.frame(
@@ -94,6 +96,7 @@ data.frame(
 
 ## ----mode-na------------------------------------------------------------------
 mhn_mode(0.5, 1, -1)
+mhn_mode(1, 1, -1)
 
 ## ----special-sqrt-gamma-------------------------------------------------------
 # gamma = 0: dmhn matches the change-of-variable sqrt-Gamma density.
